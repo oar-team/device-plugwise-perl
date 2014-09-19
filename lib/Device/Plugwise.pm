@@ -453,7 +453,7 @@ sub _process_response {
 # init resp | seq. nr.|| stick MAC addr || don't care    || network key    || short key
     {
         # Extract info
-        $self->{_plugwise}->{stick_MAC}   = substr( $2, -6, 6 );
+        $self->{_plugwise}->{stick_MAC}   = $2;#substr( $2, -6, 6 ); # longer addresses are needed, we go full long addresses
         $self->{_plugwise}->{network_key} = $4;
         $self->{_plugwise}->{short_key}   = $5;
         $self->{_plugwise}->{connected}   = 1;
@@ -561,7 +561,7 @@ sub _process_response {
     {
         # Store the node in the object
         if ( $3 ne "FFFFFFFFFFFFFFFF" ) {
-            $self->{_plugwise}->{circles}->{ substr( $3, -6, 6 ) } = {
+            $self->{_plugwise}->{circles}->{$3} = { # substr( $3, -6, 6 ) } = { # long addresses only now
             };    # Store the last 6 digits of the MAC address for later use
                   # And immediately queue a request for calibration info
             $self->write( "0026" . $3 );
@@ -904,19 +904,25 @@ sub _query_connected_circles {
 }
 
 # Convert the long Circle address notation to short
+# we actualy need long address, so this function now do nothing
 sub _addr_l2s {
     my ( $self, $address ) = @_;
-    my $saddr = substr( $address, -8, 8 );
+    #my $saddr = substr( $address, -8, 8 );
 
 # We will return at least 6 bytes, more if required
 # This is to keep compatibility with existing code that only supports 6 byte short addresses
-    return sprintf( "%06X", hex($saddr) );
+    #return sprintf( "%06X", hex($saddr) );
+    warn "_addr_l2s called with $address\n";
+    return $address; # we use full addresses all the time
 }
 
 # Convert the short Circle address notation to long
+# we actualy need long address, so this function now do nothing
 sub _addr_s2l {
     my ( $self, $address ) = @_;
-    return "000D6F00" . sprintf( "%08X", hex($address) );
+    #return "000D6F00" . sprintf( "%08X", hex($address) );
+    warn "_addr_s2l called with $address\n";
+    return $address; # there are only long addresses now
 }
 
 # Convert hex values to float for power readout
